@@ -19,6 +19,13 @@ def WriteTfLite(modelPath,savePath):
     tflite_model = tf_lite_converter.convert()
     open(savePath,"wb").write(tflite_model)
 
+def WriteInt8TFLite(modelPath,savePath):
+    tf_lite_converter = tf.lite.TFLiteConverter.from_saved_model(modelPath)
+    tf_lite_converter.target_spec.supported_ops = [ tf.lite.OpsSet.TFLITE_BUILTINS,tf.lite.OpsSet.SELECT_TF_OPS]
+    tf_lite_converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    tflite_model = tf_lite_converter.convert()
+    open(savePath,"wb").write(tflite_model)
+
 def LoadModel(savePath):
     newModel = tf.saved_model.load(savePath)
     #model = joblib.load(f'{savePath}fintune.pkl')
