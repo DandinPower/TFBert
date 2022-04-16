@@ -1,0 +1,10 @@
+data/bert.base.torch
+data/bert.small.torch
+data/parameter/small/parameters.txt
+dataset/reviews_medium.csv
+.env
+models/save/checkpoint
+models/save/.index
+models/save/.data-00000-of-00001
+models/save/tflite/tflite_models.tflite
+models/save/finetune
