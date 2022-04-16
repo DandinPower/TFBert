@@ -8,6 +8,7 @@ import os
 import time
 
 TFLITE_PATH = os.getenv('TFLITE_PATH')
+TFLITE_INT8_PATH = os.getenv('TFLITE_INT8_PATH')
 DATASET_PATH = os.getenv('DATASET_PATH')
 MAX_LEN = int(os.getenv('MAX_LEN'))
 SPLIT_RATE = float(os.getenv('SPLIT_RATE'))
@@ -15,7 +16,7 @@ BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 
 def TfliteTest():
     print("Tflite Inferencing...")
-    interpreter = GetInterpreter()
+    interpreter = GetInterpreter(TFLITE_INT8_PATH)
     metrics = tf.metrics.SparseCategoricalAccuracy()
     batchDatas, batchLabels = GetTestDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     now = 0
@@ -49,8 +50,8 @@ def RandomTest(interpreter):
     tflite_model_predictions = interpreter.get_tensor(output_details[0]['index'])
     print(tflite_model_predictions)
 
-def GetInterpreter():
-    interpreter = tf.lite.Interpreter(model_path=TFLITE_PATH)
+def GetInterpreter(path):
+    interpreter = tf.lite.Interpreter(model_path=path)
     interpreter.resize_tensor_input(0, [BATCH_SIZE, MAX_LEN])
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
@@ -60,6 +61,7 @@ def GetInterpreter():
     print("Output Shape:",output_details[0]['shape'])
     print("Output Type:",output_details[0]['dtype'])
     return interpreter
+
 
 if __name__ == "__main__":
     pass

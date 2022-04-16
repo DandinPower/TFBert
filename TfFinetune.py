@@ -1,7 +1,7 @@
 from models.bert.configs import Config
 from models.bert.modeling import BERTModel,BERTClassifier
 from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset,GetSingleDataset
-from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite
+from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite,WriteInt8TFLite
 from models.train.classification import Train,Inference
 from models.valid.tflite import TfliteTest
 from dotenv import load_dotenv
@@ -19,6 +19,7 @@ NUM_EPOCHS = int(os.getenv('NUM_EPOCHS'))
 LR = float(os.getenv('LR'))
 BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 TFLITE_PATH = os.getenv('TFLITE_PATH')
+TFLITE_INT8_PATH = os.getenv('TFLITE_INT8_PATH')
 
 
 def SingleTest():
@@ -57,4 +58,5 @@ if __name__ == "__main__":
     #OnlyInference()
     #main()
     #WriteTfLite(MODEL_SAVE_PATH, TFLITE_PATH)
+    WriteInt8TFLite(MODEL_SAVE_PATH, TFLITE_INT8_PATH)
     TfliteTest()
