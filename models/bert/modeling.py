@@ -18,7 +18,6 @@ class BERTModel(tf.keras.Model):
         self.hidden.add(tempLinearLayer)
         self.hidden.add(tf.keras.layers.Activation('tanh'))
 
-    @tf.function
     def call(self, inputs):
         (tokens, segments, valid_lens) = inputs
         embeddingX = self.encoder((tokens,segments))
@@ -45,7 +44,11 @@ class BERTClassifier(tf.keras.Model):
         tempValid = self.GetValidLen(tokens)
         inputs = (tokens,tempSegments,tempValid)
         output = self.bert(inputs)
-        result = tf.nn.softmax(self.classifier(output))
+        start = time.time()
+        output = self.classifier(output)
+        result = tf.nn.softmax(output)
+        classifierTime = time.time()
+        print(f'classifier: {classifierTime - start}')
         return result
 
     def GetValidLen(self,inputs):

@@ -7,6 +7,7 @@ from models.valid.tflite import TfliteTest
 from dotenv import load_dotenv
 import os
 import numpy as np
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 load_dotenv()
 
@@ -21,16 +22,34 @@ BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 TFLITE_PATH = os.getenv('TFLITE_PATH')
 TFLITE_INT8_PATH = os.getenv('TFLITE_INT8_PATH')
 
+def DataFlowTest():
+    config = Config()
+    parameters = load_variable(PARAMETER_PATH)
+    parameters = Parameters(parameters)
+    model = BERTClassifier(config, parameters)
+    model.LoadParameters()
+    datas,labels = GetSingleDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE)
+    singleData = datas[1]
+    singleLabels = labels[1]
+    print(f'Input Token: ')
+    print(singleData)
+    output = model(singleData)
+    print(output)
+    loss = tf.keras.losses.sparse_categorical_crossentropy(y_true=singleLabels, y_pred=output)
+    loss = tf.reduce_mean(loss) 
+    print(loss)
 
 def SingleTest():
     config = Config()
     datas,labels = GetSingleDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE)
     singleData = datas[1]
     singleLabels = labels[1]
+    print(f'Input Token: ')
+    print(singleData)
     newModel = LoadModel(MODEL_SAVE_PATH)
     output = newModel(singleData)
     print(output)
-    loss = tf.keras.losses.sparse_categorical_crossentropy(y_true=[1,0], y_pred=output)
+    loss = tf.keras.losses.sparse_categorical_crossentropy(y_true=singleLabels, y_pred=output)
     loss = tf.reduce_mean(loss) 
     print(loss)
 
@@ -54,9 +73,10 @@ def main():
     Inference(newModel,datas, labels)
 
 if __name__ == "__main__":
+    DataFlowTest()
     #SingleTest()
     #OnlyInference()
     #main()
     #WriteTfLite(MODEL_SAVE_PATH, TFLITE_PATH)
-    WriteInt8TFLite(MODEL_SAVE_PATH, TFLITE_INT8_PATH)
-    TfliteTest()
+    #WriteInt8TFLite(MODEL_SAVE_PATH, TFLITE_INT8_PATH)
+    #TfliteTest()

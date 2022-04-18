@@ -1,12 +1,12 @@
 import tensorflow as tf
 import sys
+import time 
 
 class AddParameter(tf.keras.layers.Layer):
     def __init__(self, nums,hiddens):
         super().__init__()
         self.w = self.add_variable(name='weight',shape=[nums,hiddens], initializer=tf.zeros_initializer())
 
-    @tf.function 
     def call(self, inputs):
         return inputs + self.w
 
@@ -19,11 +19,18 @@ class BERTEncoder(tf.keras.Model):
         self.config = config
         self.parameters = parameters
 
-    @tf.function
     def call(self, inputs):
+        start = time.time()
         (tokens,segments) = inputs
-        X = self.token_embedding(tokens) + self.segment_embedding(segments)
+        X = self.token_embedding(tokens)
+        tokenTime = time.time()
+        print(f'token: {tokenTime-start}')
+        X = X + self.segment_embedding(segments)
+        segmentTime = time.time()
+        print(f'segment: {segmentTime-tokenTime}')
         X = self.pos_embedding(X)
+        posTime = time.time()
+        print(f'position :{posTime-segmentTime}')
         return X
 
     def LoadParameters(self):

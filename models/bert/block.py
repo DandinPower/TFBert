@@ -17,14 +17,21 @@ class EncoderBlock(tf.keras.Model):
 
     def call(self, inputs):
         (X, valid_lens) = inputs
+        start = time.time()
         output = self.attention((X, X, X, valid_lens))
+        attentionTime = time.time()
+        print(f'attention: {attentionTime-start}')
         Y = self.addnorm1((X, output))
+        addnorm1Time = time.time()
+        print(f'addnorm1: {addnorm1Time - attentionTime}')
         output = self.ffn(Y)
+        ffnTime = time.time()
+        print(f'ffn: {ffnTime-addnorm1Time}')
         result = self.addnorm2((Y, output))
+        addnorm2Time = time.time()
+        print(f'addnorm2: {addnorm2Time - ffnTime}')
         return result
 
     def LoadParameters(self):
         self.ffn.LoadParameters()
         self.attention.LoadParameters()
-
-

@@ -62,6 +62,5 @@ def GetInterpreter(path):
     print("Output Type:",output_details[0]['dtype'])
     return interpreter
 
-
 if __name__ == "__main__":
     pass
