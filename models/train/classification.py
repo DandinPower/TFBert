@@ -11,6 +11,23 @@ import time
 
 PARAMETER_PATH = os.getenv('PARAMETER_PATH')
 
+def InferenceByDataset(model,dataset):
+    print('Inferencing...')
+    metrics=tf.metrics.SparseCategoricalAccuracy()
+    startTime = time.time()
+    j = 0
+    total = len(xTest)
+    pBar = ProgressBar().start()
+    for data in dataset:
+        X, y = data
+        y_pred = model(X)
+        metrics.update_state(y, y_pred)
+        pBar.update(int((j / (total - 1)) * 100))
+        j += 1
+    pBar.finish()
+    print(f'cost time: {round(time.time() - startTime,3)} sec')
+    print(f'test accuracy:{metrics.result().numpy()}')
+
 def Inference(model,xTest,yLabel):
     print('Inferencing...')
     metrics=tf.metrics.SparseCategoricalAccuracy()

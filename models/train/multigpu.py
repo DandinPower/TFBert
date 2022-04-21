@@ -53,3 +53,4 @@ def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
                 lossTotal += tempLoss
             print(f'epoch: {epoch} loss: {lossTotal/total}')
     print("finish")
+    return model
