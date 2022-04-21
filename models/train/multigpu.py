@@ -43,7 +43,7 @@ def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
             per_replica_losses = mirrored_strategy.run(train_step, args=(dist_inputs,))
             return mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses,
                                     axis=None)
-
+        startTime = time.time()
         for epoch in range(num_epochs):
             lossTotal = 0
             start = 0
@@ -52,5 +52,6 @@ def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
                 tempLoss = distributed_train_step(dist_inputs)
                 lossTotal += tempLoss
             print(f'epoch: {epoch} loss: {lossTotal/total}')
+    print(f'cost time: {round(time.time() - startTime,3)} sec')
     print("finish")
     return model
