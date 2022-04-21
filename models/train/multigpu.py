@@ -54,8 +54,8 @@ def MultiTrain(config,parameters,gpus,dataset,lr,num_epochs,savePath):
                 lossTotal += tempLoss
                 pBar.update(int((start / (total - 1)) * 100))
                 start += 1
+            pBar.finish()
             print(f'epoch: {epoch} loss: {lossTotal/total}')
-    pBar.finish()
     print(f'cost time: {round(time.time() - startTime,3)} sec')
     print("finish")
     return model
