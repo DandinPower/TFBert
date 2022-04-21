@@ -18,15 +18,15 @@ def compute_loss(labels, predictions):
     per_example_loss = tf.keras.losses.sparse_categorical_crossentropy(y_true=labels, y_pred=predictions)
     return tf.nn.compute_average_loss(per_example_loss, global_batch_size=GLOBAL_BATCH_SIZE)
 
-def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
+def MultiTrain(config,parameters,gpus,dataset,lr,num_epochs,savePath):
     print('Multi Training...')
-    mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0","/gpu:1"])
+    mirrored_strategy = tf.distribute.MirroredStrategy(devices=gpus)
     with mirrored_strategy.scope():
         model = BERTClassifier(config, parameters)
         model.LoadParameters()
         optimizer=tf.keras.optimizers.Adam(learning_rate=lr)  
     
-        dataset = tf.data.Dataset.from_tensor_slices((xTrain, yLabel)).batch(GLOBAL_BATCH_SIZE)
+        #dataset = tf.data.Dataset.from_tensor_slices((xTrain, yLabel)).batch(GLOBAL_BATCH_SIZE)
         dist_dataset = mirrored_strategy.experimental_distribute_dataset(dataset)
 
         def train_step(inputs):

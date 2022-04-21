@@ -20,6 +20,11 @@ SPLIT_RATE = float(os.getenv('SPLIT_RATE'))
 NUM_EPOCHS = int(os.getenv('NUM_EPOCHS'))
 LR = float(os.getenv('LR'))
 BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
+GPU_NUMS = int(os.getenv('GPU_NUMS'))
+SINGLE_BATCH = int(os.getenv('SINGLE_BATCH'))
+
+GLOBAL_BATCH_SIZE = GPU_NUMS * SINGLE_BATCH
+
 TFLITE_PATH = os.getenv('TFLITE_PATH')
 TFLITE_INT8_PATH = os.getenv('TFLITE_INT8_PATH')
 
@@ -64,9 +69,14 @@ def MultiTest():
     parameters = load_variable(PARAMETER_PATH)
     parameters = Parameters(parameters)
     datas,labels = GetNoBatchDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
-    model = MultiTrain(config, parameters, datas, labels, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
-    dataset = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(BATCH_SIZE)
-    InferenceByDataset(model,dataset)
+    dataset_multi = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(GLOBAL_BATCH_SIZE)
+    dataset_one = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(BATCH_SIZE)
+    devices = ["/gpu:0","/gpu:1"]
+    model = MultiTrain(config, parameters, devices, dataset_multi, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+    InferenceByDataset(model,dataset_one)
+    devices = ["/gpu:0"]
+    model = MultiTrain(config, parameters, devices, dataset_one, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+    InferenceByDataset(model,dataset_one)
 
 
 def main():
