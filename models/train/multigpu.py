@@ -20,7 +20,7 @@ def compute_loss(labels, predictions):
 
 def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
     print('Multi Training...')
-    mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0"])
+    mirrored_strategy = tf.distribute.MirroredStrategy(devices=["/gpu:0","/gpu:1"])
     with mirrored_strategy.scope():
         model = BERTClassifier(config, parameters)
         model.LoadParameters()
