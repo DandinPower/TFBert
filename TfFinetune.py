@@ -8,7 +8,7 @@ from models.valid.tflite import TfliteTest
 from dotenv import load_dotenv
 import os
 import numpy as np
-#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 load_dotenv()
 
