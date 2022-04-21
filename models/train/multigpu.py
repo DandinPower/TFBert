@@ -44,6 +44,12 @@ def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
             return mirrored_strategy.reduce(tf.distribute.ReduceOp.SUM, per_replica_losses,
                                     axis=None)
 
-        for dist_inputs in dist_dataset:
-            print(distributed_train_step(dist_inputs))
+        for epoch in range(num_epochs):
+            lossTotal = 0
+            start = 0
+            total = len(dataset)
+            for dist_inputs in dist_dataset:
+                tempLoss = distributed_train_step(dist_inputs)
+                lossTotal += tempLoss
+            print(f'epoch: {epoch} loss: {lossTotal/total}')
     print("finish")

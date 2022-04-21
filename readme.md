@@ -15,6 +15,9 @@
     DROPOUT = 0.1
     VOCAB_SIZE = 60005
 
+    SINGLE_BATCH = 10
+    GPU_NUMS = 1
+
     NUM_HIDDENS = 256  #small:256 base:768
     FFN_NUM_INPUT = 256 #small:[256] base:[768]
     FFN_NUM_HIDDENS = 512 #small:512 base:3072
