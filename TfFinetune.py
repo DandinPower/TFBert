@@ -1,13 +1,14 @@
 from models.bert.configs import Config
 from models.bert.modeling import BERTModel,BERTClassifier
-from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset,GetSingleDataset
+from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset,GetSingleDataset,GetNoBatchDataset
 from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite,WriteInt8TFLite
 from models.train.classification import Train,Inference
+from models.train.multigpu import MultiTrain
 from models.valid.tflite import TfliteTest
 from dotenv import load_dotenv
 import os
 import numpy as np
-os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+#os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 load_dotenv()
 
@@ -58,6 +59,13 @@ def OnlyInference():
     newModel = LoadModel(MODEL_SAVE_PATH)
     Inference(newModel,datas, labels)
 
+def MultiTest():
+    config = Config()
+    parameters = load_variable(PARAMETER_PATH)
+    parameters = Parameters(parameters)
+    datas,labels = GetNoBatchDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    MultiTrain(config, parameters, datas, labels, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+
 def main():
     config = Config()
     parameters = load_variable(PARAMETER_PATH)
@@ -73,7 +81,8 @@ def main():
     Inference(newModel,datas, labels)
 
 if __name__ == "__main__":
-    DataFlowTest()
+    MultiTest()
+    #DataFlowTest()
     #SingleTest()
     #OnlyInference()
     #main()

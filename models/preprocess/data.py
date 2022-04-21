@@ -9,6 +9,14 @@ load_dotenv()
 MODEL_PATH = os.getenv('PRETRAIN_DIR_PATH')
 BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 
+def GetNoBatchDataset(datasetPath,maxLen,splitRate,batchSize):
+    print('Loading Train data....')
+    vocab = load_vocab()
+    dataset = YelpDataset(datasetPath, maxLen, vocab, splitRate)
+    train_data = dataset.GetTrain()
+    train_iter = DataLoader(train_data[0], train_data[1], batchSize, False)
+    return train_iter.GetNobatchData()
+
 def GetSingleDataset(datasetPath,maxLen,splitRate):
     print('Loading Train data....')
     vocab = load_vocab()
@@ -206,3 +214,11 @@ class DataLoader():
             batchLabels.append(tempLabel)
             self.start += self.batch
         return batchDatas,batchLabels
+
+    def GetNobatchData(self):
+        datas = []
+        labels = []
+        for i in range(len(self.datas)):
+            datas.append(self.datas[i][0])
+            labels.append(self.labels[i])
+        return datas,labels
