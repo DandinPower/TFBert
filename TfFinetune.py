@@ -65,10 +65,8 @@ def MultiTest():
     parameters = Parameters(parameters)
     datas,labels = GetNoBatchDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     model = MultiTrain(config, parameters, datas, labels, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
-    SaveModel(model, MODEL_SAVE_PATH)
-    newModel = LoadModel(MODEL_SAVE_PATH)
     dataset = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(BATCH_SIZE)
-    InferenceByDataset(newModel,dataset)
+    InferenceByDataset(model,dataset)
 
 
 def main():
