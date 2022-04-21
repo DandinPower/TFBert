@@ -16,7 +16,7 @@ def InferenceByDataset(model,dataset):
     metrics=tf.metrics.SparseCategoricalAccuracy()
     startTime = time.time()
     j = 0
-    total = len(xTest)
+    total = len(dataset)
     pBar = ProgressBar().start()
     for data in dataset:
         X, y = data
