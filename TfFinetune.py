@@ -68,8 +68,11 @@ def MultiTest():
     config = Config()
     parameters = load_variable(PARAMETER_PATH)
     parameters = Parameters(parameters)
+    print("Load Dataset...")
     datas,labels = GetNoBatchDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    print("Load Multi Dataset...")
     dataset_multi = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(GLOBAL_BATCH_SIZE)
+    print("Load Normal Dataset...")
     dataset_one = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(BATCH_SIZE)
     devices = ["/gpu:0","/gpu:1"]
     model = MultiTrain(config, parameters, devices, dataset_multi, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
