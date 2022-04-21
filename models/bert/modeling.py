@@ -44,11 +44,8 @@ class BERTClassifier(tf.keras.Model):
         tempValid = self.GetValidLen(tokens)
         inputs = (tokens,tempSegments,tempValid)
         output = self.bert(inputs)
-        start = time.time()
         output = self.classifier(output)
         result = tf.nn.softmax(output)
-        classifierTime = time.time()
-        print(f'classifier: {classifierTime - start}')
         return result
 
     def GetValidLen(self,inputs):

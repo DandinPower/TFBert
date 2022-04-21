@@ -46,4 +46,4 @@ def MultiTrain(config,parameters,xTrain,yLabel,lr,num_epochs,savePath):
 
         for dist_inputs in dist_dataset:
             print(distributed_train_step(dist_inputs))
-    print("hello")
+    print("finish")

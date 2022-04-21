@@ -20,17 +20,10 @@ class BERTEncoder(tf.keras.Model):
         self.parameters = parameters
 
     def call(self, inputs):
-        start = time.time()
         (tokens,segments) = inputs
         X = self.token_embedding(tokens)
-        tokenTime = time.time()
-        print(f'token: {tokenTime-start}')
         X = X + self.segment_embedding(segments)
-        segmentTime = time.time()
-        print(f'segment: {segmentTime-tokenTime}')
         X = self.pos_embedding(X)
-        posTime = time.time()
-        print(f'position :{posTime-segmentTime}')
         return X
 
     def LoadParameters(self):
