@@ -79,12 +79,9 @@ def MultiTest():
     model = MultiTrain(config, parameters, devices, dataset_multi, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
     Inference(model,dataset_one)
     SaveModel(model, MODEL_SAVE_PATH)
-    newModel = LoadModel(MODEL_SAVE_PATH)
-    Inference(newModel, dataset_one)
-    '''
     devices = ["/gpu:0"]
     model = MultiTrain(config, parameters, devices, dataset_one, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
-    Inference(model,dataset_one)'''
+    Inference(model,dataset_one)
 
 #訓練一個新的模型並儲存
 def TrainAndSave():
