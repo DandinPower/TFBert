@@ -65,6 +65,8 @@ def OnlyInference():
     dataset = GetTestDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     newModel = LoadModel(MODEL_SAVE_PATH)
     Inference(newModel,dataset)
+    dataset_train = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    Inference(newModel,dataset)
 
 #比較多卡的訓練效能跟單卡的效能
 def MultiTest():
