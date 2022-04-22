@@ -1,6 +1,6 @@
 from models.bert.configs import Config
 from models.bert.modeling import BERTModel,BERTClassifier
-from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset,GetSingleDataset,GetNoBatchDataset
+from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset
 from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite,WriteInt8TFLite
 from models.train.classification import Train,Inference,InferenceByDataset
 from models.train.multigpu import MultiTrain
@@ -21,10 +21,7 @@ NUM_EPOCHS = int(os.getenv('NUM_EPOCHS'))
 LR = float(os.getenv('LR'))
 BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 GPU_NUMS = int(os.getenv('GPU_NUMS'))
-SINGLE_BATCH = int(os.getenv('SINGLE_BATCH'))
-
-GLOBAL_BATCH_SIZE = GPU_NUMS * SINGLE_BATCH
-
+GLOBAL_BATCH_SIZE = GPU_NUMS * BATCH_SIZE
 TFLITE_PATH = os.getenv('TFLITE_PATH')
 TFLITE_INT8_PATH = os.getenv('TFLITE_INT8_PATH')
 
@@ -68,12 +65,10 @@ def MultiTest():
     config = Config()
     parameters = load_variable(PARAMETER_PATH)
     parameters = Parameters(parameters)
-    print("Load Dataset...")
-    datas,labels = GetNoBatchDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     print("Load Multi Dataset...")
-    dataset_multi = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(GLOBAL_BATCH_SIZE)
+    dataset_multi = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,GLOBAL_BATCH_SIZE)
     print("Load Normal Dataset...")
-    dataset_one = tf.data.Dataset.from_tensor_slices((datas, labels)).batch(BATCH_SIZE)
+    dataset_one = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     devices = ["/gpu:0","/gpu:1"]
     model = MultiTrain(config, parameters, devices, dataset_multi, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
     InferenceByDataset(model,dataset_one)

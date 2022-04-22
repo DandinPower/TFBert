@@ -9,37 +9,21 @@ load_dotenv()
 MODEL_PATH = os.getenv('PRETRAIN_DIR_PATH')
 BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 
-def GetNoBatchDataset(datasetPath,maxLen,splitRate,batchSize):
-    print('Loading Train data....')
-    vocab = load_vocab()
-    dataset = YelpDataset(datasetPath, maxLen, vocab, splitRate)
-    train_data = dataset.GetTrain()
-    train_iter = DataLoader(train_data[0], train_data[1], batchSize, False)
-    return train_iter.GetNobatchData()
-
-def GetSingleDataset(datasetPath,maxLen,splitRate):
-    print('Loading Train data....')
-    vocab = load_vocab()
-    dataset = YelpDataset(datasetPath, maxLen, vocab, splitRate)
-    train_data = dataset.GetTrain()
-    train_iter = DataLoader(train_data[0], train_data[1], BATCH_SIZE, False)
-    return train_iter.GetTrainData()
-
 def GetTrainDataset(datasetPath,maxLen,splitRate, batchSize):
     print('Loading Train data....')
     vocab = load_vocab()
     dataset = YelpDataset(datasetPath, maxLen, vocab, splitRate)
     train_data = dataset.GetTrain()
-    train_iter = DataLoader(train_data[0], train_data[1], batchSize, False)
-    return train_iter.GetTrainData()
+    train_loader = DataLoader(train_data[0], train_data[1], batchSize, False)
+    return train_loader.GetBatchDataset()
 
 def GetTestDataset(datasetPath,maxLen,splitRate, batchSize):
     print('Loading Test data....')
     vocab = load_vocab()
     dataset = YelpDataset(datasetPath, maxLen, vocab, splitRate)
     test_data = dataset.GetTest()
-    test_iter = DataLoader(test_data[0], test_data[1], batchSize, True)
-    return test_iter.GetTrainData()
+    test_loader = DataLoader(test_data[0], test_data[1], batchSize, True)
+    return test_loader.GetBatchDataset()
 
 def count_corpus(tokens):
     if len(tokens) == 0 or isinstance(tokens[0], list):
@@ -191,34 +175,19 @@ class DataLoader():
         self.shuffle = shuffle 
         self.start = 0
         self.turns = len(self.datas) // self.batch
+        self.inputs = []
+        self.PreLoad()
 
-    def GetTrainData(self):
-        batchDatas = []
-        batchLabels = []
-        for i in range(self.turns):
-            tempToken = []
-            tempSegment = []
-            tempValid = []
-            tempLabel = []
-            for j in range(self.start,self.start + self.batch):
-                tempToken.append(self.datas[j][0])
-                tempSegment.append(self.datas[j][1])
-                tempValid.append(self.datas[j][2])
-                tempLabel.append(self.labels[j])
-            tempToken = tf.stack(tempToken,axis = 0)
-            tempSegment = tf.stack(tempSegment,axis = 0)
-            tempValid = tf.stack(tempValid,axis =0)
-            tempLabel = tf.stack(tempLabel,axis=0)
-            #batchDatas.append([tempToken,tempSegment,tempValid])
-            batchDatas.append(tempToken)
-            batchLabels.append(tempLabel)
-            self.start += self.batch
-        return batchDatas,batchLabels
-
-    def GetNobatchData(self):
-        datas = []
-        labels = []
+    #將資料集讀取進來
+    def PreLoad(self):
         for i in range(len(self.datas)):
-            datas.append(self.datas[i][0])
-            labels.append(self.labels[i])
-        return datas,labels
+            self.inputs.append(self.datas[i][0])
+
+    #回傳dataset
+    def GetBatchDataset(self):
+        bufferSize = 1
+        if (self.shuffle):
+            bufferSize = len(self.datas)
+        dataset = tf.data.Dataset.from_tensor_slices((self.inputs, self.labels)).batch(self.batch).shuffle(buffer_size = bufferSize)
+        return dataset
+

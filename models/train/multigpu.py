@@ -3,7 +3,6 @@ from ..bert.modeling import BERTClassifier
 from ..bert.configs import Config
 from ..preprocess.load import load_variable,Parameters
 from dotenv import load_dotenv
-#import joblib
 import os
 load_dotenv()
 import tensorflow as tf
@@ -11,8 +10,8 @@ import time
 
 PARAMETER_PATH = os.getenv('PARAMETER_PATH')
 GPU_NUMS = int(os.getenv('GPU_NUMS'))
-SINGLE_BATCH = int(os.getenv('SINGLE_BATCH'))
-GLOBAL_BATCH_SIZE = GPU_NUMS * SINGLE_BATCH
+BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
+GLOBAL_BATCH_SIZE = GPU_NUMS * BATCH_SIZE
 
 def compute_loss(labels, predictions):
     per_example_loss = tf.keras.losses.sparse_categorical_crossentropy(y_true=labels, y_pred=predictions)
@@ -25,10 +24,7 @@ def MultiTrain(config,parameters,gpus,dataset,lr,num_epochs,savePath):
         model = BERTClassifier(config, parameters)
         model.LoadParameters()
         optimizer=tf.keras.optimizers.Adam(learning_rate=lr)  
-    
-        #dataset = tf.data.Dataset.from_tensor_slices((xTrain, yLabel)).batch(GLOBAL_BATCH_SIZE)
         dist_dataset = mirrored_strategy.experimental_distribute_dataset(dataset)
-
         def train_step(inputs):
             features, labels = inputs
             with tf.GradientTape() as tape:
