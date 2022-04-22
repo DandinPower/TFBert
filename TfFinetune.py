@@ -4,6 +4,7 @@ from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDat
 from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite,WriteInt8TFLite
 from models.train.classification import Train,Inference
 from models.train.multigpu import MultiTrain
+from models.train.qat import QuantizationAwareTraining
 from models.valid.tflite import TfliteTest
 from dotenv import load_dotenv
 import os
@@ -98,12 +99,23 @@ def TrainAndSave():
     newModel = LoadModel(MODEL_SAVE_PATH)
     Inference(newModel,testDataset)
 
+#測試量化訓練
+def QatTest():
+    config = Config()
+    parameters = load_variable(PARAMETER_PATH)
+    parameters = Parameters(parameters)
+    model = BERTClassifier(config, parameters)
+    model.LoadParameters()
+    dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    QuantizationAwareTraining(model, dataset)
+
 if __name__ == "__main__":
-    MultiTest()
+    #MultiTest()
     #TrainAndSave()
-    OnlyInference()
+    #OnlyInference()
     #DataFlowTest()
     #SingleTest()
     #WriteTfLite(MODEL_SAVE_PATH, TFLITE_PATH)
     #WriteInt8TFLite(MODEL_SAVE_PATH, TFLITE_INT8_PATH)
     #TfliteTest()
+    QatTest()

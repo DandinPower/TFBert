@@ -14,8 +14,6 @@
     NUM_EPOCHS = 1
     DROPOUT = 0.1
     VOCAB_SIZE = 60005
-
-    SINGLE_BATCH = 10
     GPU_NUMS = 1
 
     NUM_HIDDENS = 256  #small:256 base:768
