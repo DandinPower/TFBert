@@ -14,16 +14,18 @@ MAX_LEN = int(os.getenv('MAX_LEN'))
 SPLIT_RATE = float(os.getenv('SPLIT_RATE'))
 BATCH_SIZE = int(os.getenv('BATCH_SIZE'))
 
+#測試tflite的accuracy
 def TfliteTest():
     print("Tflite Inferencing...")
     interpreter = GetInterpreter(TFLITE_INT8_PATH)
     metrics = tf.metrics.SparseCategoricalAccuracy()
-    batchDatas, batchLabels = GetTestDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    dataset = GetTestDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     now = 0
-    total = len(batchDatas)
+    total = len(dataset)
     start = time.time()
     pBar = ProgressBar().start()
-    for data,label in zip(batchDatas,batchLabels):
+    for inputs in dataset:
+        data,label = inputs
         y_pred = TfliteInference(interpreter, data, label)
         metrics.update_state(label,y_pred)
         pBar.update(int((now / (total - 1)) * 100))
@@ -32,6 +34,7 @@ def TfliteTest():
     print(f'cost time: {round(time.time() - start,3)} sec')
     print(f'Lite accuracy:{metrics.result().numpy()}')
 
+#測試單筆
 def TfliteInference(interpreter,datas,labels):
     inputs = interpreter.get_input_details()[0]['index']
     outputs = interpreter.get_output_details()[0]['index']
@@ -39,6 +42,7 @@ def TfliteInference(interpreter,datas,labels):
     interpreter.invoke()
     return interpreter.get_tensor(outputs)
     
+#根據interpreter的資料來隨機測試值
 def RandomTest(interpreter):
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
@@ -50,6 +54,7 @@ def RandomTest(interpreter):
     tflite_model_predictions = interpreter.get_tensor(output_details[0]['index'])
     print(tflite_model_predictions)
 
+#回傳interpreter
 def GetInterpreter(path):
     interpreter = tf.lite.Interpreter(model_path=path)
     interpreter.resize_tensor_input(0, [BATCH_SIZE, MAX_LEN])

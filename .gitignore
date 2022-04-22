@@ -7,4 +7,6 @@ models/save/checkpoint
 models/save/.index
 models/save/.data-00000-of-00001
 models/save/tflite/tflite_models.tflite
+models/save/tflite/tflite_fp32.tflite
+models/save/tflite/tflite_int8.tflite
 models/save/finetune
