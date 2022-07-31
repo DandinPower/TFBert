@@ -22,6 +22,8 @@
     NORM_SHAPE = 256 #small:[256] base:[768]
     NUM_HEADS = 4 #small:4 base:12
     NUM_LAYERS = 2 #small:2 base:12
+
+    HISTORY_PATH = history.txt
     ```
 
 2. 下載以下函示庫
