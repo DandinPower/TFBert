@@ -70,6 +70,9 @@ class MultiHeadAttention(tf.keras.Model):
 
     def call(self, inputs):
         (queries, keys, values, valid_lens) = inputs
+        self.logger.AddNewLog([queries.shape, self.W_q.w.shape], "matmul")
+        self.logger.AddNewLog([keys.shape, self.W_k.w.shape], "matmul")
+        self.logger.AddNewLog([values.shape, self.W_v.w.shape], "matmul")
         queries = self.W_q(queries)
         queries = self.transpose_qkv((queries, self.num_heads))
         keys = self.transpose_qkv((self.W_k(keys), self.num_heads))
@@ -79,18 +82,21 @@ class MultiHeadAttention(tf.keras.Model):
         valid_lens = tf.repeat(valid_lens,repeats = self.num_heads,axis=0)
         output = self.attention((queries, keys, values ,valid_lens))
         output_concat = self.transpose_output((output, self.num_heads))
+        self.logger.AddNewLog([output_concat.shape, self.W_o.w.shape], "matmul")
         result = self.W_o(output_concat)
         return result
 
     def transpose_qkv(self,inputs):
         (X, num_heads) = inputs
         X = tf.reshape(X,[self.config.batchSize, X.shape[1], num_heads, (self.config.numHiddens//num_heads)])
+        self.logger.AddNewLog([X.shape], "transpose")
         X = tf.transpose(X , perm = [0,2,1,3])
         return tf.reshape(X,[-1, X.shape[2], X.shape[3]])
 
     def transpose_output(self,inputs):
         (X, num_heads) = inputs
         X = tf.reshape(X,[self.config.batchSize, num_heads, X.shape[1], X.shape[2]])
+        self.logger.AddNewLog([X.shape], "transpose")
         X = tf.transpose(X , perm = [0,2,1,3])
         return tf.reshape(X,[X.shape[0], X.shape[1], -1])
 
