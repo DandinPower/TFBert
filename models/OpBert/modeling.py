@@ -18,12 +18,14 @@ class BERTModel(tf.keras.Model):
         tempLinearLayer.set_weights([parameters["hidden.0.weight"],parameters["hidden.0.bias"]])
         self.hidden.add(tempLinearLayer)
         self.hidden.add(tf.keras.layers.Activation('tanh'))
+        self.numHiddens = config.numHiddens
 
     def call(self, inputs):
         (tokens, segments, valid_lens) = inputs
         embeddingX = self.encoder((tokens,segments))
         X = self.block1((embeddingX, valid_lens))
         X = self.block2((X, valid_lens))
+        self.logger.AddNewLog([X[:, 0, :].shape, self.numHiddens], "matmul")
         X = self.hidden(X[:, 0, :])
         return X
 
@@ -40,12 +42,14 @@ class OPBERTClassifier(tf.keras.Model):
         self.logger = logger
         self.bert = BERTModel(config, self.parameters, logger)
         self.classifier = LinearLayer(config.numHiddens, 2)
+        self.numHiddens = config.numHiddens
 
     def call(self, tokens):
         tempSegments = tokens * 0
         tempValid = self.GetValidLen(tokens)
         inputs = (tokens,tempSegments,tempValid)
         output = self.bert(inputs)
+        self.logger.AddNewLog([output.shape, [self.numHiddens, 2]], "matmul")
         output = self.classifier(output)
         result = tf.nn.softmax(output)
         return result
