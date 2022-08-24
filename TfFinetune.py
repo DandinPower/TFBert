@@ -6,6 +6,8 @@ from models.train.classification import Train,Inference,WriteHistory
 from models.train.multigpu import MultiTrain
 from models.train.qat import QuantizationAwareTraining
 from models.valid.tflite import TfliteTest
+from models.OpBert.modeling import OPBERTClassifier
+from models.logger.logger import FullLogger
 from dotenv import load_dotenv
 import os
 import numpy as np
@@ -101,6 +103,16 @@ def TrainAndSave():
     #newModel = LoadModel(MODEL_SAVE_PATH)
     #Inference(newModel,testDataset)
 
+#紀錄operation log 
+def LoggerTest():
+    config = Config()
+    parameters = load_variable(PARAMETER_PATH)
+    parameters = Parameters(parameters)
+    model = OPBERTClassifier(config, parameters)
+    model.LoadParameters()
+    dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
+    model, history = Train(model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+
 #測試量化訓練
 def QatTest():
     config = Config()
@@ -112,8 +124,9 @@ def QatTest():
     QuantizationAwareTraining(model, dataset)
 
 if __name__ == "__main__":
+    LoggerTest()
     #MultiTest()
-    TrainAndSave()
+    #TrainAndSave()
     #OnlyInference()
     #DataFlowTest()
     #SingleTest()
