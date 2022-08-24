@@ -19,13 +19,21 @@ class BERTEncoder(tf.keras.Model):
         self.pos_embedding = AddParameter(config.maxLen,config.numHiddens)
         self.config = config
         self.parameters = parameters
+        self.maxLen = config.maxLen
+        self.vocabSize = config.vocabSize
+        self.numHiddens = config.numHiddens
 
     def call(self, inputs):
         (tokens,segments) = inputs
         X = self.token_embedding(tokens)
-        self.logger.AddNewLog([tokens.shape,[3,4]], "matmul")
         X = X + self.segment_embedding(segments)
         X = self.pos_embedding(X)
+        shape1_A = [tokens.shape[0], self.maxLen, self.vocabSize]
+        shape1_B = [self.vocabSize, self.numHiddens]
+        shape2_A = [segments.shape[0], self.maxLen, 2]
+        shape2_B = [2, self.numHiddens]
+        self.logger.AddNewLog([shape1_A, shape1_B], "matmul")
+        self.logger.AddNewLog([shape2_A, shape2_B], "matmul")
         return X
 
     def LoadParameters(self):
