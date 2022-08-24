@@ -11,8 +11,9 @@ class AddParameter(tf.keras.layers.Layer):
         return inputs + self.w
 
 class BERTEncoder(tf.keras.Model):
-    def __init__(self, config, parameters):
+    def __init__(self, config, parameters, logger):
         super(BERTEncoder, self).__init__()
+        self.logger = logger
         self.token_embedding = tf.keras.layers.Embedding(config.vocabSize, config.numHiddens,input_length=config.maxLen,weights=[parameters["encoder.token_embedding.weight"]])
         self.segment_embedding = tf.keras.layers.Embedding(2, config.numHiddens,input_length=config.maxLen,weights=[parameters["encoder.segment_embedding.weight"]])
         self.pos_embedding = AddParameter(config.maxLen,config.numHiddens)

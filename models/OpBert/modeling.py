@@ -6,12 +6,13 @@ import time
 from ..train.timer import GetTimeByDict
 
 class BERTModel(tf.keras.Model):
-    def __init__(self, config, parameters):
+    def __init__(self, config, parameters, logger):
         super(BERTModel, self).__init__()
+        self.logger = logger
         self.parameters = parameters
-        self.encoder = BERTEncoder(config,parameters)
-        self.block1 = EncoderBlock(config,parameters,0,True)
-        self.block2 = EncoderBlock(config,parameters,1,True)
+        self.encoder = BERTEncoder(config,parameters, logger)
+        self.block1 = EncoderBlock(config,parameters, logger, 0,True)
+        self.block2 = EncoderBlock(config,parameters, logger, 1,True)
         self.hidden = tf.keras.Sequential()
         tempLinearLayer = LinearLayer(config.numHiddens, config.numHiddens)
         tempLinearLayer.set_weights([parameters["hidden.0.weight"],parameters["hidden.0.bias"]])
@@ -32,11 +33,12 @@ class BERTModel(tf.keras.Model):
         self.block2.LoadParameters()
 
 class OPBERTClassifier(tf.keras.Model):
-    def __init__(self, config, parameters):
+    def __init__(self, config, parameters, logger):
         super(OPBERTClassifier, self).__init__()
         self.config = config 
         self.parameters = parameters
-        self.bert = BERTModel(config, self.parameters)
+        self.logger = logger
+        self.bert = BERTModel(config, self.parameters, logger)
         self.classifier = LinearLayer(config.numHiddens, 2)
 
     def call(self, tokens):

@@ -12,8 +12,9 @@ class LinearLayer(tf.keras.layers.Layer):
         return y_pred
 
 class AddNorm(tf.keras.Model):
-    def __init__(self, dropout):
+    def __init__(self, dropout, logger):
         super(AddNorm, self).__init__()
+        self.logger = logger
         self.dropout = tf.keras.layers.Dropout(dropout)
         self.ln = tf.keras.layers.LayerNormalization(axis = 2)
 
@@ -22,8 +23,9 @@ class AddNorm(tf.keras.Model):
         return self.ln(self.dropout(Y) + X)
 
 class PositionWiseFFN(tf.keras.Model):
-    def __init__(self, config, parameters,index):
+    def __init__(self, config, parameters, logger,index):
         super(PositionWiseFFN, self).__init__()
+        self.logger = logger
         self.config = config 
         self.parameters = parameters 
         self.index = index 

@@ -110,10 +110,11 @@ def LoggerTest():
     config = Config()
     parameters = load_variable(PARAMETER_PATH)
     parameters = Parameters(parameters)
-    model = OPBERTClassifier(config, parameters)
+    model = OPBERTClassifier(config, parameters, logger)
     model.LoadParameters()
     dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
     model, history = Train_V2(logger, model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+    logger.WriteLog('operation.txt')
 
 #測試量化訓練
 def QatTest():

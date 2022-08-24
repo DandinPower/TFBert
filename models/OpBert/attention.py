@@ -5,8 +5,9 @@ import time
 from ..train.timer import GetTimeByDict
 
 class DotProductAttention(tf.keras.Model):
-    def __init__(self, dropout,config):
+    def __init__(self, dropout,config,logger):
         super(DotProductAttention, self).__init__()
+        self.logger = logger
         self.config = config
         self.dropout = tf.keras.layers.Dropout(dropout)
         self.first = self.config.batchSize * self.config.numHeads
@@ -54,13 +55,14 @@ class DotProductAttention(tf.keras.Model):
 
 
 class MultiHeadAttention(tf.keras.Model):
-    def __init__(self,config,parameters,index,bias=False):
+    def __init__(self,config,parameters,logger,index,bias=False):
         super(MultiHeadAttention, self).__init__()
+        self.logger = logger
         self.num_heads = config.numHeads
         self.config = config 
         self.parameters = parameters 
         self.index = index 
-        self.attention = DotProductAttention(config.dropout,config)
+        self.attention = DotProductAttention(config.dropout,config, logger)
         self.W_q = LinearLayer(config.numHiddens, config.numHiddens)
         self.W_k = LinearLayer(config.numHiddens, config.numHiddens)
         self.W_v = LinearLayer(config.numHiddens, config.numHiddens)
