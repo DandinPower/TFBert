@@ -23,9 +23,12 @@ class DotProductAttention(tf.keras.Model):
         if (valid_lens.shape[0] == None):
             valid_lens = tf.reshape(valid_lens,[self.first,])
         d = queries.shape[-1]
+        self.logger.AddNewLog([keys.shape], "transpose")
         keys = tf.transpose(keys,[0,2,1])
+        self.logger.AddNewLog([queries.shape, keys.shape], "matmul")
         scores = tf.matmul(queries, keys) / math.sqrt(d)
         self.attention_weights = self.masked_softmax((scores,valid_lens))
+        self.logger.AddNewLog([self.attention_weights.shape, values.shape], "matmul")
         result = tf.matmul(self.dropout(self.attention_weights), values)
         return result
 
