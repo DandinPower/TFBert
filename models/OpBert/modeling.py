@@ -25,7 +25,7 @@ class BERTModel(tf.keras.Model):
         embeddingX = self.encoder((tokens,segments))
         X = self.block1((embeddingX, valid_lens))
         X = self.block2((X, valid_lens))
-        self.logger.AddNewLog([X[:, 0, :].shape, self.numHiddens], "matmul")
+        self.logger.AddNewLog([X[:, 0, :].shape, [self.numHiddens, self.numHiddens]], "matmul")
         X = self.hidden(X[:, 0, :])
         return X
 
