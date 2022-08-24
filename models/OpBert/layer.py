@@ -34,7 +34,10 @@ class PositionWiseFFN(tf.keras.Model):
         self.dense2 = LinearLayer(config.ffnNumHiddens, config.ffnNumInput)
 
     def call(self, X):
-        return self.dense2(self.relu(self.dense1(X)))
+        self.logger.AddNewLog([X.shape, self.dense1.w.shape], "matmul")
+        output = self.relu(self.dense1(X))
+        self.logger.AddNewLog([output.shape, self.dense2.w.shape], "matmul")
+        return self.dense2(output)
 
     def LoadParameters(self):
         self.dense2.set_weights([self.parameters[f"encoder.blks.{self.index}.ffn.dense1.weight"],self.parameters[f"encoder.blks.{self.index}.ffn.dense2.bias"]])
