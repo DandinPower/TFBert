@@ -2,7 +2,7 @@ from models.bert.configs import Config
 from models.bert.modeling import BERTModel,BERTClassifier
 from models.preprocess.data import YelpDataset,load_vocab,DataLoader,GetTrainDataset,GetTestDataset
 from models.preprocess.load import load_variable,Parameters,LoadModel,SaveModel,WriteTfLite,WriteInt8TFLite
-from models.train.classification import Train,Inference,WriteHistory
+from models.train.classification import Train,Inference,WriteHistory, Train_V2
 from models.train.multigpu import MultiTrain
 from models.train.qat import QuantizationAwareTraining
 from models.valid.tflite import TfliteTest
@@ -105,13 +105,15 @@ def TrainAndSave():
 
 #紀錄operation log 
 def LoggerTest():
+    blockSize = [[2, 2], [2, 2]]
+    logger = FullLogger(blockSize)
     config = Config()
     parameters = load_variable(PARAMETER_PATH)
     parameters = Parameters(parameters)
     model = OPBERTClassifier(config, parameters)
     model.LoadParameters()
     dataset = GetTrainDataset(DATASET_PATH,MAX_LEN,SPLIT_RATE,BATCH_SIZE)
-    model, history = Train(model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
+    model, history = Train_V2(logger, model,dataset, LR, NUM_EPOCHS,MODEL_SAVE_PATH)
 
 #測試量化訓練
 def QatTest():

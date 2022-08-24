@@ -55,6 +55,35 @@ def Train(model,dataset,lr,num_epochs,savePath):
         metrics.reset_states()
     return model, history
 
+def Train_V2(logger, model,dataset,lr,num_epochs,savePath):
+    print('Training...')
+    optimizer=tf.keras.optimizers.Adam(learning_rate=1e-4)  
+    metrics=tf.metrics.SparseCategoricalAccuracy()
+    history = []
+    for x in range(num_epochs):
+        logger.SetNewEpochs()
+        startTime = time.time()
+        j = 0
+        total = len(dataset)
+        pBar = ProgressBar().start()
+        for data in dataset:
+            X, y = data
+            with tf.GradientTape() as tape:
+                y_pred = model(X)
+                loss = tf.keras.losses.sparse_categorical_crossentropy(y_true=y, y_pred=y_pred)
+                metrics.update_state(y, y_pred)
+                loss = tf.reduce_mean(loss)          
+            grads = tape.gradient(loss, model.variables)
+            optimizer.apply_gradients(grads_and_vars=zip(grads, model.variables))
+            pBar.update(int((j / (total - 1)) * 100))
+            j += 1
+        pBar.finish()
+        print(f'cost time: {round(time.time() - startTime,3)} sec')
+        print(f'epoch:{x} accuracy:{metrics.result().numpy()}')
+        history.append(metrics.result().numpy())
+        metrics.reset_states()
+    return model, history
+
 def WriteHistory(_history, _path):
     with open(_path, 'w') as f:
         for item in _history:
