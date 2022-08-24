@@ -23,7 +23,7 @@ class BERTEncoder(tf.keras.Model):
     def call(self, inputs):
         (tokens,segments) = inputs
         X = self.token_embedding(tokens)
-        self.logger.AddNewLog([[2,3],[3,4]], "matmul")
+        self.logger.AddNewLog([tokens.shape,[3,4]], "matmul")
         X = X + self.segment_embedding(segments)
         X = self.pos_embedding(X)
         return X
